@@ -9,3 +9,10 @@ example: pwd --> users/documents/CCA_analysis
 
 IF THE SCRIPT HAS ISSUES FINDING THE FILES, YOU MAY HAVE TO EDIT THE SOME VARIABLES IN THE FIRST 20 LINES OF ANALIZE.PY TO THE
 APPROPRIATE WORKING DIRECTORY PATH'S.
+
+
+
+This script just barcodes RNA from the link above. it should be able to intepret other sets of data from the site.
+
+ideally this will be a command line tool...
+http://www.diveintopython.net/scripts_and_streams/command_line_arguments.html
