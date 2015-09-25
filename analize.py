@@ -20,7 +20,7 @@ import csv
 import sqlite3 as lite
 import sys
 #setting up the outfile for out results!
-con = lite.connect('geneSequenceResults.db'); #initilazing output file
+con = lite.connect('../larry_CCA_analysis/geneSequenceResults.db'); #initilazing output file
 cur = con.cursor() #save cursor to var
 cur.execute("DROP TABLE IF EXISTS genes") #if this table doesn't exist, create it.
 cur.execute("CREATE TABLE genes (geneid text, normcount real, barcode text, tissuetype text)")#vals in each col of table
@@ -32,9 +32,9 @@ cur.execute("CREATE TABLE isoforms (barcode text, geneid text, isoformid text, n
 cabinet = [] # array will hold TissueSample objects, holding a tissue barcode and it's data.
 
 # file path's are relative to where the py script is saved. so they could cause problems if you aren't lookin the right place.
-manifestFile = "TCGA CHOL RNA-seq/file_manifest.txt"; #this is the manifest file path. it has barcode names and filenames.
+manifestFile = "../larry_CCA_analysis/TCGA CHOL RNA-seq/file_manifest.txt"; #this is the manifest file path. it has barcode names and filenames.
 #append this before each barcode filename so python can find the file.
-pathToDataFiles = "TCGA CHOL RNA-seq/RNASeqV2/UNC__IlluminaHiSeq_RNASeqV2/Level_3/"; # where the files are the scientist wants.
+pathToDataFiles = "../larry_CCA_analysis/TCGA CHOL RNA-seq/RNASeqV2/UNC__IlluminaHiSeq_RNASeqV2/Level_3/"; # where the files are the scientist wants.
 filenameKeywords = ["genes.results","genes.normalized","isoforms.normalized"]; # the files scientist wants for his study.
 tissue_type_file = "tissuetype.csv"; #file made by scientist.
 
@@ -196,7 +196,7 @@ print "Now printing isoforms table to console from DB"
 cur.execute('SELECT * FROM isoforms')
 for row in cur:
 	print row
-print "Above is the isoforms table from database printed out to console."
+print "Above is the isoforms and genes table from database printed out to console."
 print '-' * 55
 
 
