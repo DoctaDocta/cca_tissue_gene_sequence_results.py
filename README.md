@@ -1,14 +1,10 @@
 # cca_tissue_gene_sequence_results.py
-This repo does not contain the actual data because it is too large.
-You can download it from here: https://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=CHOL&amp;diseaseName=Cholangiocarcinoma
+You must download the gene sequence results from:
+https://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=CHOL&amp;diseaseName=Cholangiocarcinoma
 
-To run the program, download this repository and save it in the same folder that contains the TCGA Data from the link above.
-example: pwd --> users/documents/CCA_analysis
-                  --> TCGA_data (results folder)
-                  --> cca_tissue_gene_sequence_results.py (this repository)
+There are variables within the first twenty lines of code that have file paths in them. You must update these to locate the data.
 
-IF THE SCRIPT HAS ISSUES FINDING THE FILES, YOU WILL HAVE TO EDIT THE SOME VARIABLES IN THE FIRST 20 LINES OF ANALIZE.PY TO THE
-APPROPRIATE WORKING DIRECTORY PATH'S.
+To run the script, run it through a text editor like Sublime Text 2. If you have a mac, the command line seems to be faster. Open the terminal and go to the directory with the analize.py script, and type python analyze.py to build a database.
 
 
 -------------------------------------------------------------------------------------------------------------------------------
