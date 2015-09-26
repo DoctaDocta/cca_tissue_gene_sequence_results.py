@@ -1,6 +1,6 @@
 # cca_tissue_gene_sequence_results.py
 You must download the gene sequence results from:
-https://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=CHOL&amp;diseaseName=Cholangiocarcinoma
+https://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=CHOL&diseaseName=Cholangiocarcinoma
 
 There are variables within the first twenty lines of code that have file paths in them. You must update these to locate the data.
 

@@ -135,8 +135,7 @@ class TissueSample:
 		for key, val in self.genes_results.iteritems():
 			for x in val:
 				isoCount = self.isoforms_norms.get(x, None);
-				tmpList = [];
-				# 				barcode, gene_id. isoform id. isoform count.
+				tmpList = [];		#barcode,gene.isoform.isoform count.
 				tmpList.extend([self.barcode, key, x, isoCount]);
 				cur.execute('INSERT INTO isoforms VALUES (?,?,?,?)', tmpList)
 
