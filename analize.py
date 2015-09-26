@@ -1,14 +1,19 @@
 #####################################
 ######  	 ABOUT THIS SCRIPY 	    #
 #####################################
-# This script will read the results of sequenced barcodes of tissue
-# so they can easily be searched and organized by the scientist.
-# URL to retreive gene sequencing data for CCA tissue: https://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=CHOL&diseaseName=Cholangiocarcinoma
+# This script reads the results of sequenced barcodes of tissue and execute them to an SQLite3 database.
+# URL to retreive gene sequencing data for CCA tissue:
+# https://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=CHOL&diseaseName=Cholangiocarcinoma
+
+
 #####################################
 ######  INSTRUCTIONS FOR USE:		#
 #####################################
 #In the shell go to this directory and type 'python analize.py' to run the script.
-# check out the README if you are confused.
+# -- It seems to run much faster this way, than to run it in Sublime Text 2, in my experience.
+# check out the README for more information..
+
+
 #####################################
 ######  SETTING UP 				 	#
 #####################################
@@ -61,45 +66,45 @@ class TissueSample:
 		self.barcode = barcode;	#see example below class definition
 		self.sample = barcode[:15] #the sample is first 15 char, see manifest for example.
 		self.tissue_type = tissueTypeDict[self.sample]; #find matching tissue type.
-		print "\t\tFound tissue type:", self.barcode, self.tissue_type, "Added to cabinet!"
+		print "\tFound tissue type:", self.barcode, self.tissue_type, "Added to cabinet!"
 
 	#attributes for the TissueSample. These hold the filenames for data, and will hold data themselves.
 	genes_results = {"gene_id":"multiple_transcript_ids", #attribute  with dictionary
-					"filename": ""} #currently set at NULL, and genes_results['filename'] is considered NULL.
+					"filepath": ""} #currently set at NULL, and genes_results['filename'] is considered NULL.
 	genes_norms = 	{"gene_id":"normalized_count",
-					"filename": ""}
+					"filepath": ""}
 	isoforms_norms = {"isoform_id":"normalized_count", #isoform_id == transcript id from gene.results
-						"filename": ""}
+						"filepath": ""}
 	tissue_type = "none";
 # you can add attributes (or attr's) to your cases by defining (or def) functions to input
 # learned from: http://sthurlow.com/python/lesson08/
 
 	def filename_function_switch(self, keyword):
-		if "genes.normalized" in keyword:
+		if "genes.normalized" in keyword: #this function should really cycle through all the keywords that are inputted
 			self.add_genes_norms(keyword)
 		elif "genes.results" in keyword:
 			self.add_genes_results(keyword);
 		elif "isoforms.normalized" in keyword:
 			self.add_isoforms_norms(keyword);
 
-	def add_isoforms_norms(self,isoforms_norms_file): #functions to add attribute to the object...
-		path = pathToDataFiles + isoforms_norms_file;# filename passed from manifest needs it's path prepended.
-		self.isoforms_norms['filename'] = path; 			# so we use functions for the name, but when adding genes
-		print "\t\tAdded filename, but not actual data for this script version."
+	def add_isoforms_norms(self,filename): #functions to add attribute to the object...
+		path = pathToDataFiles + filename;# filename passed from manifest needs it's path prepended.
+		self.isoforms_norms['filepath'] = path; 			# so we use functions for the name, but when adding genes
+		print "\tAdded filepath."
 		with open(path, 'rb') as f: #use the file we read in to get all its necessary contents
-			print "\t\tReading in Isoforms Normalized Results and storing in TissueSample in cabinet."
+			print "\tReading in Isoforms Normalized Results and storing in TissueSample in cabinet."
 			reader = csv.reader(f, delimiter="\t")
 			for line in reader:
 				self.isoforms_norms[line[0]] = line[1] #add this data to the dict attribute above
-		if (self.genes_results['filename']): #both files are GO.
+		if (self.genes_results['filepath']): #both files are GO.
 			self.add_isoforms_ids(); #call function to write to DB.
 
 
-	def add_genes_norms(self,genes_norms_file):
-		path = pathToDataFiles + genes_norms_file;
-		self.genes_norms['filename'] = path;
+	def add_genes_norms(self,filename):
+		path = pathToDataFiles + filename;
+		self.genes_norms['filepath'] = path;
 		with open(path, 'rb') as f:
-			print "\t\tReading in Genes Normalized Results and executing to DB."
+			print "\tReading in Genes Normalized Results and executing to DB."
 			reader = csv.reader(f, delimiter="\t")
 			for line in reader:
 				tmpList = [];
@@ -108,22 +113,22 @@ class TissueSample:
 				cur.execute('INSERT INTO genes VALUES (?,?,?,?)', tmpList)
 		#this is where we will export our fulfilled TissueSample object to a table using sqlite.
 
-	def add_genes_results(self,genes_results_file):
-		path = pathToDataFiles + genes_results_file;
-		self.genes_results['filename'] = path;
-		print "\t\tAdded filename."
+	def add_genes_results(self,filename):
+		path = pathToDataFiles + filename;
+		self.genes_results['filepath'] = path;
+		print "\tAdded filepath."
 		with open(path, 'rb') as f: #this is using the csv library to read the file into python
-			print "\t\tReading in Gene Results and adding to TissueSample in cabinet"
+			print "\tReading in Gene Results and adding to TissueSample in cabinet"
 			reader = csv.reader(f, delimiter="\t") #telling python to read it by every tab or \t
 			for line in reader: #we are reading one line of the file at a time, it is a list, or array
 				arrayify = line[3].split(",") #arrafiy makes a list out of transcript ids in the 3rd column.
 				self.genes_results[line[0]] = arrayify; #this dictionary will have the gene key match to a list of isoforms in the
-		if (self.isoforms_norms['filename']): #other file has been read in, as well! let's go!
+		if (self.isoforms_norms['filepath']): #other file has been read in, as well! let's go!
 			self.add_isoforms_ids(); #write to DB using both necessary files.
 
 	def add_isoforms_ids(self):
-		print "\t\tReading in corresponding Genes and Isoforms IDs, and each iso_id normcount."
-		print "\t\tWriting to Database under table 'isoforms'."
+		print "\tReading in corresponding Genes and Isoforms IDs, and each iso_id normcount."
+		print "\tWriting to Database under table 'isoforms'."
 		#the two files compiment each other
 		#self.genes_results[line[0]] = arrayify;
 		#self.isoforms_norms[line[0]] = line[1] each key corresponds to an index in arrayify..
@@ -151,13 +156,13 @@ with open(manifestFile, 'rb') as f:
 		i = i+1 #update count!
 		for name in filenameKeywords:
 			if name in line[6]:#remove top 3 rows, and also two quantification filename_barcodes per barcode b/c unnecessary
-				print "\nLine", i,"from manifest. barcode:", line[5], "\n\t\tfilename: ",line[6].split("rsem.",1)[1]
+				print "\nLine", i,"from manifest. barcode:", line[5], "\n\tfilename snippet: ",line[6].split("rsem.",1)[1]
 				importantLine = True;
 				for l in cabinet: #search the cabinet
 					if (line[5] == l.barcode): #the barcode is already in cabinet.
 						placeHolder = cabinet.index(l); #find position of the TissueSample
 						fileInCabinet = True;
-						print "\t\tFound the TissueSample in cabinet! placeHolder: ", placeHolder
+						print "\tFound the TissueSample in cabinet! placeHolder: ", placeHolder
 								#this needs to be after the for loop searching cabinet.
 								#b/c we search the whole cabinet for the file.
 				if (fileInCabinet == True): # the barcode is already there!
