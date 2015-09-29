@@ -41,7 +41,7 @@ manifestFile = "../larry_CCA_analysis/TCGA CHOL RNA-seq/file_manifest.txt"; #thi
 pathToDataFiles = "../larry_CCA_analysis/TCGA CHOL RNA-seq/RNASeqV2/UNC__IlluminaHiSeq_RNASeqV2/Level_3/"; # where the files are the scientist wants.
 filenameKeywords = ["genes.results","genes.normalized","isoforms.normalized"]; # the files scientist wants for his study.
 tissue_type_file = "tissuetype.csv"; #file made by scientist.
-
+output_textfile = 'output_tables.tsv';
 
 ########################################################
 #Reading Samples: Tissue Types. Adding to dictionary.###
@@ -103,15 +103,18 @@ class TissueSample:
 	def add_genes_norms(self,filename):
 		path = pathToDataFiles + filename;
 		self.genes_norms['filepath'] = path;
-		with open(path, 'rb') as f:
-			print "\tReading in Genes Normalized Results and executing to DB."
-			reader = csv.reader(f, delimiter="\t")
-			for line in reader:
-				tmpList = [];
-				#self.genes_norms[line[0]] = line[1]
-				tmpList.extend([line[0],line[1],self.barcode,self.tissue_type]);
-				cur.execute('INSERT INTO genes VALUES (?,?,?,?)', tmpList)
-		#this is where we will export our fulfilled TissueSample object to a table using sqlite.
+		with open(output_textfile, 'w') as p:
+			writer = csv.writer(p, delimiter='\t')
+			with open(path, 'rb') as f:
+				print "\tReading in Genes Normalized Results and executing to DB."
+				reader = csv.reader(f, delimiter="\t")
+				for line in reader:
+					tmpList = [];
+					#self.genes_norms[line[0]] = line[1]
+					tmpList.extend([line[0],line[1],self.barcode,self.tissue_type]);
+					writer.writerow(tmpList)
+					cur.execute('INSERT INTO genes VALUES (?,?,?,?)', tmpList)
+			#this is where we will export our fulfilled TissueSample object to a table using sqlite.
 
 	def add_genes_results(self,filename):
 		path = pathToDataFiles + filename;
@@ -132,12 +135,15 @@ class TissueSample:
 		#the two files compiment each other
 		#self.genes_results[line[0]] = arrayify;
 		#self.isoforms_norms[line[0]] = line[1] each key corresponds to an index in arrayify..
-		for key, val in self.genes_results.iteritems():
-			for x in val:
-				isoCount = self.isoforms_norms.get(x, None);
-				tmpList = [];		#barcode,gene.isoform.isoform count.
-				tmpList.extend([self.barcode, key, x, isoCount]);
-				cur.execute('INSERT INTO isoforms VALUES (?,?,?,?)', tmpList)
+		with open(output_textfile, 'w') as p:
+			writer = csv.writer(p, delimiter='\t')
+			for key, val in self.genes_results.iteritems():
+				for x in val:
+					isoCount = self.isoforms_norms.get(x, None);
+					tmpList = [];		#barcode,gene.isoform.isoform count.
+					tmpList.extend([self.barcode, key, x, isoCount]);
+					writer.writerow(tmpList)
+					cur.execute('INSERT INTO isoforms VALUES (?,?,?,?)', tmpList)
 
 #############################
 #Reading in the file_manifest
