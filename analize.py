@@ -77,7 +77,7 @@ class TissueSample:
 	tissue_type = "none";
 # you can add attributes (or attr's) to your cases by defining (or def) functions to input
 # learned from: http://sthurlow.com/python/lesson08/
-#functions to add attribute to the object...
+#functions to add attribute to the object....
 
 	def filename_function_switch(self, keyword):
 		if "genes.normalized" in keyword: #this function should really cycle through all the keywords that are inputted, not just the three hardcoded.
