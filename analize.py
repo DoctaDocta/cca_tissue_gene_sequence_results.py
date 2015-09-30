@@ -24,7 +24,7 @@ cur = con.cursor() #save cursor to var
 cur.execute("DROP TABLE IF EXISTS genes") #if this table doesn't exist, create it. SQLITE3
 cur.execute("CREATE TABLE genes (geneid text, normcount real, barcode text, tissuetype text)")# determine the vals in each col of table
 cur.execute("DROP TABLE IF EXISTS isoforms"); # a second table
-cur.execute("CREATE TABLE isoforms (barcode text, geneid text, isoformid text, normcount real)")
+cur.execute("CREATE TABLE isoforms (geneid text, isoformid text, normcount real, barcode text, tissuetype text)")
 
 # we will fill this "Cabinet" list with objects of class TissueSample..
 cabinet = [] # array will hold TissueSample objects, holding a tissue barcode and it's data.
@@ -58,6 +58,13 @@ isoCount = 0;
 ########################################################
 # Defining Attributes and Functions for Tissue Samples #
 ########################################################
+
+#This function allows you to query the 45 sample for a certain gene.
+# Will output all of it's isoforms and their expressions in cancerous and non cancerous tissues.
+#def search_isoform_expressions_by_gene(genename):
+
+
+
 
 # This is a class definition, an object called TissueSample that will get information using functions, and storing it in its attributes
 class TissueSample:
@@ -136,14 +143,13 @@ class TissueSample:
 				for x in val:
 					isoCount = self.isoforms_norms.get(x, None);
 					tmpList = []; #empty the list again.
-					tmpList.extend([self.barcode, key, x, isoCount]); #populate the list with our output: barcode,gene.isoform.isoform count.
+					tmpList.extend([key, x, isoCount, self.barcode, self.tissue_type]); #populate the list with our output: barcode,gene.isoform.isoform count.
 					writer.writerow(tmpList) #write to txt file
-					cur.execute('INSERT INTO isoforms VALUES (?,?,?,?)', tmpList) #write to DB.
+					cur.execute('INSERT INTO isoforms VALUES (?,?,?,?, ?)', tmpList) #write to DB.
 
 #############################
 #Reading in the file_manifest
 #############################
-
 fileInCabinet = False; #this boolean is to let us know if we found the barcode name in the cabinet.
 importantLine = False; #this boolean is to let us know if the line we read is important!
 placeHolder = -1; #if the barcode is in the cabinet, then this number will be it's index.
@@ -181,8 +187,6 @@ with open(manifestFile, 'rb') as f:
 #########################################
 #####	Printing stuff to console #######
 #########################################
-
-
 print "Now printing genes table to console from DB... They have already been printed to geneSequenceResults.db in this directory."
 print "\tThis will take about 10-15 minutes... "
 									#this is basic mysqlite and it's pretty simple!
