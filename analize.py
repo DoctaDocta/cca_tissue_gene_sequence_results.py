@@ -35,7 +35,8 @@ manifestFile = "../larry_CCA_analysis/TCGA CHOL RNA-seq/file_manifest.txt"; #thi
 pathToDataFiles = "../larry_CCA_analysis/TCGA CHOL RNA-seq/RNASeqV2/UNC__IlluminaHiSeq_RNASeqV2/Level_3/";#where the files are,will append to filenames from manifest.
 filenameKeywords = ["genes.results","genes.normalized","isoforms.normalized"]; # the files scientist wants for his study.
 tissue_type_file = "tissuetype.csv"; #file made by scientist to match tissue type and sample name.
-output_textfile = 'output_tables.tsv'; #output file for easy read and access.
+output_genes = 'genes_table.tsv'; #output file for easy read and access.
+output_isoforms = 'isoforms_table.tsv';
 
 ########################################################
 #Reading Samples: Tissue Types. Adding to dictionary.###
@@ -61,7 +62,10 @@ isoCount = 0;
 
 #This function allows you to query the 45 sample for a certain gene.
 # Will output all of it's isoforms and their expressions in cancerous and non cancerous tissues.
-#def search_isoform_expressions_by_gene(genename):
+def search_isoform_expressions_by_gene(genename):
+	cur.execute("SELECT * FROM genes") # you can also select from genes to see the other table!
+	for row in cur:
+		print row
 
 
 
@@ -98,14 +102,18 @@ class TissueSample:
 		path = pathToDataFiles + filename;
 		self.genes_norms['filepath'] = path;
 		print "\tAdded filepath to TissueSample."
-		with open(output_textfile, 'w') as p: #this is to write formatted output
+		with open(output_genes, 'w') as p: #this is to write formatted output
 			writer = csv.writer(p, delimiter='\t')
 			with open(path, 'rb') as f: #this is to read the genes_norms file
 				print "\tReading in genes normalized results and executing to DB."
 				reader = csv.reader(f, delimiter="\t")
 				for line in reader:
-					tmpList = [];
-					tmpList.extend([line[0],line[1],self.barcode,self.tissue_type]);
+					if line[0] == 'gene_id': #removing unnecces
+						tmpList = [];
+						tmpList.extend([line[0],line[1],'barcode','tissue_type']);
+					else:
+						tmpList = [];
+						tmpList.extend([line[0],line[1],self.barcode,self.tissue_type]);
 					writer.writerow(tmpList)
 					cur.execute('INSERT INTO genes VALUES (?,?,?,?)', tmpList) #here i'm actually putting things into the DB.
 
@@ -137,7 +145,7 @@ class TissueSample:
 	def add_isoforms_ids(self):
 		print "\tReading in genes and their isoforms ids and normcounts."
 		print "\tWriting to Database under table 'isoforms'."
-		with open(output_textfile, 'w') as p:
+		with open(output_isoforms, 'w') as p:
 			writer = csv.writer(p, delimiter='\t')
 			for key, val in self.genes_results.iteritems():
 				for x in val:
