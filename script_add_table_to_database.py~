@@ -1,0 +1,25 @@
+#####################################
+######  	 ABOUT THIS SCRIPT 	    #
+#####################################
+# This script divides the geneSequenceResults DataBase into NT rows and TN rows
+# and then merges matching sample/gene pairs 
+# so the normalized counts of TN and NT pairs can be compared side-by-side
+
+
+#####################################
+######  INSTRUCTIONS FOR USE:		#
+#####################################
+#In the shell go to this directory and type 'python match_gene_counts.py' to run the script.
+
+
+#####################################
+# Import necessary libraries
+import pandas
+from pandas.io import sql
+import sqlite3 as lite
+
+# Open connection to the geneSequenceResults.db
+con = lite.connect('geneSequenceResults.db');
+cur = con.cursor()
+
+patients_table = pandas.read_csv('nationwidechildrens.org_clinical_patient_chol.txt', sep='\t')
